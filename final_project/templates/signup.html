@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up – SymptomSense AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Manrope:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0ea5e9;
+            --primary-dark: #0369a1;
+            --accent: #22d3ee;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --white: #fff;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Manrope', 'Inter', sans-serif;
+            background:
+                linear-gradient(rgba(18,24,38,0.65), rgba(18,24,38,0.65)),
+                url('https://images.pexels.com/photos/236380/pexels-photo-236380.jpeg?auto=compress&w=1500&q=80') center/cover no-repeat fixed;
+        }
+        .auth-card {
+            background: rgba(255,255,255,0.96);
+            border-radius: 28px;
+            box-shadow: 0 8px 40px 0 rgba(14,165,233,0.22);
+            padding: 48px 44px 40px;
+            width: 100%;
+            max-width: 440px;
+            position: relative;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .brand-icon {
+            font-size: 32px;
+        }
+        .brand-name {
+            font-size: 1.45rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, #0ea5e9, #22d3ee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 0.02em;
+        }
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 900;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+        .subtitle {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            margin-bottom: 28px;
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        label {
+            display: block;
+            font-weight: 700;
+            font-size: 0.88rem;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 13px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            color: var(--text);
+            background: #f8fafc;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(14,165,233,0.15);
+            background: #fff;
+        }
+        .password-wrap {
+            position: relative;
+        }
+        .toggle-pw {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 1.1rem;
+            user-select: none;
+            color: var(--text-light);
+        }
+        .error-box {
+            background: #fef2f2;
+            border: 1px solid #fca5a5;
+            color: var(--danger);
+            border-radius: 10px;
+            padding: 11px 16px;
+            font-size: 0.9rem;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(90deg, #0ea5e9, #22d3ee);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            margin-top: 6px;
+            transition: opacity 0.2s, transform 0.1s;
+            box-shadow: 0 4px 14px rgba(14,165,233,0.3);
+        }
+        .btn-primary:hover { opacity: 0.92; transform: translateY(-1px); }
+        .btn-primary:active { transform: translateY(0); }
+        .divider {
+            text-align: center;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin: 22px 0 18px;
+        }
+        .link-row {
+            text-align: center;
+            font-size: 0.95rem;
+            color: var(--text-light);
+        }
+        .link-row a {
+            color: var(--primary-dark);
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .link-row a:hover { text-decoration: underline; }
+        .strength-bar-wrap {
+            margin-top: 6px;
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .strength-bar {
+            height: 100%;
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s, background 0.3s;
+        }
+        .strength-label {
+            font-size: 0.78rem;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-card">
+        <div class="brand">
+            <span class="brand-icon">🏥</span>
+            <span class="brand-name">SymptomSense AI</span>
+        </div>
+        <h1>Create Account</h1>
+        <p class="subtitle">Sign up to access your health dashboard</p>
+
+        {% if error %}
+        <div class="error-box">⚠️ {{ error }}</div>
+        {% endif %}
+
+        <form method="POST" action="/signup" autocomplete="off">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" placeholder="you@example.com"
+                       value="{{ email }}" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="password-wrap">
+                    <input type="password" id="password" name="password"
+                           placeholder="Minimum 6 characters" required oninput="checkStrength(this.value)">
+                    <span class="toggle-pw" onclick="togglePw('password')">👁</span>
+                </div>
+                <div class="strength-bar-wrap">
+                    <div class="strength-bar" id="strength-bar"></div>
+                </div>
+                <div class="strength-label" id="strength-label"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirm_password">Confirm Password</label>
+                <div class="password-wrap">
+                    <input type="password" id="confirm_password" name="confirm_password"
+                           placeholder="Re-enter your password" required>
+                    <span class="toggle-pw" onclick="togglePw('confirm_password')">👁</span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary">🚀 Create Account</button>
+        </form>
+
+        <div class="divider">Already have an account?</div>
+        <div class="link-row"><a href="/login">Log in here →</a></div>
+    </div>
+
+    <script>
+        function togglePw(id) {
+            const el = document.getElementById(id);
+            el.type = el.type === 'password' ? 'text' : 'password';
+        }
+        function checkStrength(val) {
+            const bar = document.getElementById('strength-bar');
+            const label = document.getElementById('strength-label');
+            let score = 0;
+            if (val.length >= 6) score++;
+            if (val.length >= 10) score++;
+            if (/[A-Z]/.test(val)) score++;
+            if (/[0-9]/.test(val)) score++;
+            if (/[^A-Za-z0-9]/.test(val)) score++;
+            const levels = [
+                { w: '20%', bg: '#ef4444', text: 'Very Weak' },
+                { w: '40%', bg: '#f97316', text: 'Weak' },
+                { w: '60%', bg: '#eab308', text: 'Fair' },
+                { w: '80%', bg: '#22c55e', text: 'Strong' },
+                { w: '100%', bg: '#0ea5e9', text: 'Very Strong' }
+            ];
+            if (val.length === 0) { bar.style.width = '0'; label.textContent = ''; return; }
+            const lvl = levels[Math.min(score - 1, 4)];
+            bar.style.width = lvl.w;
+            bar.style.background = lvl.bg;
+            label.textContent = lvl.text;
+            label.style.color = lvl.bg;
+        }
+    </script>
+</body>
+</html>

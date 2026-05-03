@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SymptomSense AI - Hospital Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Montserrat:wght@500;700&family=Manrope:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0ea5e9;
+            --primary-dark: #0369a1;
+            --accent: #22d3ee;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #eab308;
+            --background: #f3f4f6;
+            --sidebar-bg: rgba(14,165,233,0.12);
+            --card-bg: rgba(255,255,255,0.85);
+            --glass: rgba(14,165,233,0.08);
+            --shadow: 0 8px 32px 0 rgba(14,165,233,0.18);
+            --text: #1e293b;
+            --text-light: #64748b;
+            --white: #fff;
+            --gradient: linear-gradient(120deg, #0ea5e9 0%, #22d3ee 100%);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Manrope', 'Montserrat', 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            min-height: 100vh;
+            /* Professional hospital image background with more transparent dark overlay */
+            background:
+                linear-gradient(rgba(18, 24, 38, 0.60), rgba(18, 24, 38, 0.60)),
+                url('https://images.pexels.com/photos/236380/pexels-photo-236380.jpeg?auto=compress&w=1500&q=80') center center/cover no-repeat fixed;
+            position: relative;
+        }
+        /* Stethoscope UI background overlay */
+        .stethoscope-bg {
+            position: fixed;
+            right: 2vw;
+            bottom: 2vw;
+            z-index: 0;
+            width: 420px;
+            height: 420px;
+            opacity: 0.22;
+            pointer-events: none;
+            background: url('https://cdn.pixabay.com/photo/2013/07/12/15/55/stethoscope-150130_1280.png') no-repeat right bottom;
+            background-size: contain;
+            filter: drop-shadow(0 8px 32px #0ea5e9aa);
+        }
+        .background-animated {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 0;
+            pointer-events: none;
+            background: radial-gradient(circle at 70% 20%, #0ea5e9 0%, transparent 40%),
+                        radial-gradient(circle at 20% 80%, #22d3ee 0%, transparent 50%),
+                        radial-gradient(circle at 50% 50%, #0369a1 0%, transparent 60%);
+            opacity: 0.18;
+            animation: radialMove 18s ease-in-out infinite alternate;
+        }
+        @keyframes radialMove {
+            0% {filter: blur(0px);}
+            50% {filter: blur(12px);}
+            100% {filter: blur(0px);}
+        }
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            box-shadow: 2px 0 24px rgba(14,165,233,0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 0 0 0;
+            position: relative;
+            z-index: 2;
+            min-height: 100vh;
+            justify-content: flex-start;
+        }
+        .sidebar .logo {
+                font-size: 40px;
+                font-weight: 900;
+                color: #e0f2fe;
+                display: flex;
+                align-items: center;
+                margin-bottom: 48px;
+                letter-spacing: 0.10em;
+                flex-direction: row;
+                flex-wrap: wrap;
+                word-break: break-word;
+                max-width: 220px;
+                text-align: left;
+                text-shadow: 0 2px 12px #0ea5e9cc, 0 1px 8px #0369a1cc;
+        }
+        .sidebar .logo i {
+            font-size: 38px;
+            margin-right: 14px;
+            color: var(--accent);
+            animation: iconPulse 1.8s infinite alternate;
+        }
+        @keyframes iconPulse {
+            0% { color: #22d3ee; transform: scale(1); }
+            100% { color: #0ea5e9; transform: scale(1.12); }
+        }
+        .sidebar nav ul {
+            list-style: none;
+            width: 100%;
+        }
+        .sidebar nav ul li {
+            margin-bottom: 18px;
+        }
+        .sidebar nav ul li a {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                text-decoration: none;
+                color: #e0f2fe;
+                font-weight: 900;
+                padding: 18px 36px;
+                border-radius: 16px;
+                font-size: 1.18rem;
+                text-shadow: 0 1px 8px rgba(14,165,233,0.22);
+                transition: color 0.3s, background 0.3s;
+        }
+        .sidebar nav ul li a.active, .sidebar nav ul li a:hover {
+            color: var(--primary-dark);
+            background: var(--white);
+            box-shadow: 0 2px 8px #0ea5e911;
+        }
+        .main {
+            flex: 1;
+            padding: 48px 32px;
+            position: relative;
+            z-index: 1;
+        }
+        .card {
+            background: rgba(255,255,255,0.85);
+            border-radius: 32px;
+            box-shadow: var(--shadow);
+            padding: 40px 32px;
+            margin-bottom: 36px;
+            border: 1px solid var(--glass);
+            transition: box-shadow 0.3s, transform 0.3s;
+            position: relative;
+        }
+        #symptom-checker .card {
+            background: linear-gradient(rgba(28,36,48,0.92), rgba(28,36,48,0.92)),
+                url('https://images.pexels.com/photos/236380/pexels-photo-236380.jpeg?auto=compress&w=1500&q=80') center center/cover no-repeat;
+            color: #f3f4f6;
+        }
+        #appointments .card,
+#history .card,
+#doctors .card {
+    background: linear-gradient(rgba(28,36,48,0.92), rgba(28,36,48,0.92)),
+        url('https://images.pexels.com/photos/236380/pexels-photo-236380.jpeg?auto=compress&w=1500&q=80') center center/cover no-repeat;
+    color: #f3f4f6;
+}
+        /* UI/UX: Add animated glowing border to active card */
+        .card.active-glow {
+            box-shadow: 0 0 0 4px #0ea5e9, 0 8px 32px 0 rgba(14,165,233,0.18);
+            animation: glowPulse 2s infinite alternate;
+        }
+        @keyframes glowPulse {
+            0% { box-shadow: 0 0 0 4px #0ea5e9, 0 8px 32px 0 rgba(14,165,233,0.18); }
+            100% { box-shadow: 0 0 0 12px #22d3ee, 0 8px 32px 0 rgba(14,165,233,0.18); }
+        }
+        .card-title {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--primary-dark);
+            margin-bottom: 18px;
+            letter-spacing: 0.04em;
+            position: relative;
+        }
+        .card-title::after {
+            content: "";
+            display: block;
+            height: 4px;
+            width: 60px;
+            margin-top: 8px;
+            border-radius: 2px;
+            background: linear-gradient(90deg, #0ea5e9 0%, #22d3ee 100%);
+            animation: barMove 2s infinite alternate;
+        }
+        @keyframes barMove {
+            0% { width: 60px; }
+            100% { width: 100px; }
+        }
+        .btn {
+            display: inline-block;
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            font-size: 17px;
+            box-shadow: 0 2px 8px rgba(14,165,233,0.08);
+            transition: background 0.3s, color 0.3s;
+        }
+        .btn-primary {
+            background: var(--gradient);
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(90deg, #0369a1 0%, #0ea5e9 100%);
+        }
+        .btn-secondary {
+            background: #e0f2fe;
+            color: var(--primary-dark);
+        }
+        .btn-secondary:hover {
+            background: var(--primary-dark);
+            color: #fff;
+        }
+        .form-label {
+            color: var(--primary-dark);
+            font-weight: 700;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .form-control {
+            width: 100%;
+            padding: 16px;
+            border: 1.5px solid #bae6fd;
+            border-radius: 12px;
+            font-size: 18px;
+            background: #f1f5f9;
+            color: var(--text);
+            font-weight: 600;
+            margin-bottom: 18px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-dark);
+            box-shadow: 0 0 0 2px #0ea5e9;
+            background: #e0f2fe;
+        }
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+            font-size: 16px;
+        }
+        .alert {
+            padding: 18px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .alert-success {
+            background-color: #e0fbe0;
+            color: var(--success);
+            border-left: 6px solid var(--success);
+        }
+        .alert-danger {
+            background-color: #fee2e2;
+            color: var(--danger);
+            border-left: 6px solid var(--danger);
+        }
+        .alert-info {
+            background-color: #e0f2fe;
+            color: var(--primary-dark);
+            border-left: 6px solid var(--primary-dark);
+        }
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .badge-high {
+            background-color: #fee2e2;
+            color: var(--danger);
+        }
+        .badge-medium {
+            background-color: #fef9c3;
+            color: var(--warning);
+        }
+        .badge-low {
+            background-color: #e0fbe0;
+            color: var(--success);
+        }
+        table {
+                width: 100%;
+                border-collapse: separate;
+                margin-top: 20px;
+                background: rgba(28,36,48,0.92);
+                border-radius: 18px;
+                box-shadow: 0 4px 16px #0ea5e922;
+                border-spacing: 0;
+        }
+        th, td {
+                padding: 18px 22px;
+                text-align: left;
+                border-bottom: 1px solid #bae6fd;
+                font-size: 20px;
+                color: #f3f4f6;
+                font-weight: 800;
+                text-shadow: 0 1px 6px rgba(0,0,0,0.18);
+        }
+        th {
+                background: var(--gradient);
+                font-weight: 900;
+                color: #fff;
+                border: none;
+        }
+        tr {
+            transition: background 0.3s;
+        }
+        tr:hover {
+                background-color: rgba(14,165,233,0.18);
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #bae6fd;
+            margin-bottom: 24px;
+            gap: 12px;
+        }
+        .tab {
+            padding: 14px 32px;
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--text-light);
+            border-bottom: 3px solid transparent;
+            border-radius: 18px 18px 0 0;
+            transition: all 0.3s;
+            font-size: 1.08rem;
+        }
+        .tab.active {
+            color: var(--primary-dark);
+            border-bottom: 3px solid var(--primary-dark);
+            background: #e0f2fe;
+        }
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.7s;
+            background: var(--card-bg);
+            border-radius: 24px;
+            box-shadow: 0 2px 8px #0ea5e911;
+            margin-bottom: 32px;
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.7s;
+            background: var(--card-bg);
+            border-radius: 24px;
+            box-shadow: 0 2px 8px #0ea5e911;
+            margin-bottom: 32px;
+        }
+        .urgency-indicator {
+            display: flex;
+            align-items: center;
+        }
+        .indicator-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .indicator-dot.high {
+            background-color: var(--danger);
+        }
+        .indicator-dot.medium {
+            background-color: var(--warning);
+        }
+        .indicator-dot.low {
+            background-color: var(--success);
+        }
+        .loading {
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary-dark);
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .hidden {
+            display: none;
+        }
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .status-scheduled {
+            background-color: #e0f2fe;
+            color: var(--primary-dark);
+        }
+        .status-completed {
+            background-color: #e0fbe0;
+            color: var(--success);
+        }
+        .status-cancelled {
+            background-color: #fee2e2;
+            color: var(--danger);
+        }
+        .history-item {
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 2px solid #bae6fd;
+        }
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        .history-date {
+            font-weight: 700;
+            color: var(--text-light);
+            margin-bottom: 8px;
+        }
+        .history-symptoms {
+            margin-bottom: 12px;
+        }
+        .appointment-item {
+            background-color: #e0f2fe;
+            padding: 18px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+        .appointment-detail {
+            margin-bottom: 8px;
+        }
+        .detail-label {
+            font-weight: 700;
+            color: var(--primary-dark);
+            display: inline-block;
+            width: 140px;
+        }
+        @media (max-width: 900px) {
+            .layout {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                justify-content: space-between;
+                padding: 18px 0;
+            }
+            .sidebar .logo {
+                max-width: 120px;
+                font-size: 22px;
+                margin-bottom: 0;
+                text-align: left;
+            }
+            .main {
+                padding: 18px 8px;
+            }
+            .card {
+                padding: 18px 8px;
+            }
+            th, td {
+                padding: 10px 8px;
+                font-size: 15px;
+            }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="stethoscope-bg"></div>
+    <div class="background-animated"></div>
+    <div class="layout">
+        <aside class="sidebar">
+                        <div class="logo" style="flex-direction:column;align-items:center;justify-content:center;">
+                                <i class="fas fa-user-doctor" style="font-size:54px;color:#22d3ee;margin-bottom:10px;text-shadow:0 2px 12px #0ea5e9cc;"></i>
+                                <span>
+                                    <span style="display:block;">Sympto</span>
+                                    <span style="display:block;">Sense AI</span>
+                                </span>
+                        </div>
+            <nav>
+                <ul>
+                    <li><a href="#" onclick="showTab('symptom-checker')"><i class="fas fa-notes-medical"></i> Symptom Checker</a></li>
+                    <li><a href="#" onclick="showTab('appointments')"><i class="fas fa-calendar-check"></i> Appointments</a></li>
+                    <li><a href="#" onclick="showTab('history')"><i class="fas fa-history"></i> Patient History</a></li>
+                    <li><a href="#" onclick="showTab('doctors')"><i class="fas fa-user-md"></i> Doctors</a></li>
+                    <li><a href="#" onclick="showTab('hospitals')"><i class="fas fa-hospital"></i> Hospitals</a></li>
+                    <li><a href="#" onclick="showTab('medical-facilities')"><i class="fas fa-clinic-medical"></i> Medical Facilities Available</a></li>
+                    <li><a href="#" onclick="showTab('disease-tracker')"><i class="fas fa-chart-bar"></i> Disease Tracker</a></li>
+                </ul>
+            </nav>
+            <div style="margin-top:auto;padding:24px 20px 32px;width:100%;">
+                {% if user_email %}
+                <div style="color:#bae6fd;font-size:0.82rem;font-weight:600;text-align:center;margin-bottom:10px;word-break:break-all;">👤 {{ user_email }}</div>
+                {% endif %}
+                <a href="/logout" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:13px 0;background:rgba(239,68,68,0.15);color:#fca5a5;border-radius:12px;font-weight:700;text-decoration:none;font-size:0.97rem;border:1px solid rgba(239,68,68,0.3);transition:background 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.28)'" onmouseout="this.style.background='rgba(239,68,68,0.15)'">🚪 Logout</a>
+            </div>
+        </aside>
+        <main class="main">
+            <!-- Medical Facilities Tab -->
+            <div id="medical-facilities" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Medical Facilities Available</h2>
+                    </div>
+                    <div id="facilities-list">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Hospital</th>
+                                    <th>Facilities</th>
+                                </tr>
+                            </thead>
+                            <tbody id="facilities-table-body">
+                                <!-- Facilities will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- Symptom Checker Tab -->
+            <div id="symptom-checker" class="tab-content active">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Symptom Checker</h2>
+                    </div>
+                    <div id="symptom-form-container">
+                        <form id="symptom-form">
+                            <div class="form-group">
+                                <label for="patient-name" class="form-label">Patient Name</label>
+                                <input type="text" id="patient-name" class="form-control" required placeholder="Enter your full name">
+                            </div>
+                            <div class="form-group">
+                                <label for="symptom-date" class="form-label">Date</label>
+                                <input type="date" id="symptom-date" class="form-control" required value="">
+                            </div>
+                            <div class="form-group">
+                                <label for="symptoms" class="form-label">Symptoms</label>
+                                <textarea id="symptoms" class="form-control" required placeholder="Describe your symptoms in detail (e.g., 'I have had severe chest pain and difficulty breathing since this morning')"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary" id="submit-symptoms">
+                                    Analyze Symptoms
+                                    <span id="submit-loading" class="loading hidden"></span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div id="analysis-result" class="hidden">
+                        <div class="alert" id="urgency-alert"></div>
+                        <div class="form-group">
+                            <h3>Analysis Results</h3>
+                            <p><strong>Patient Name:</strong> <span id="result-name"></span></p>
+                            <p><strong>Patient ID:</strong> <span id="result-patient-id"></span></p>
+                            <p><strong>Urgency Level:</strong> <span id="result-urgency" class="urgency-indicator"></span></p>
+                            <p><strong>Recommended Department:</strong> <span id="result-department"></span></p>
+                        </div>
+                        <div id="appointment-result">
+                            <h3>Appointment Details</h3>
+                            <div id="appointment-details"></div>
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-secondary" onclick="resetForm()">Check Another Patient</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Appointments Tab -->
+            <div id="appointments" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Appointments</h2>
+                    </div>
+                    <div class="form-group">
+                        <label for="appointments-date" class="form-label">Select Date</label>
+                        <input type="date" id="appointments-date" class="form-control" style="max-width: 220px; display: inline-block; margin-right: 12px;">
+                        <button class="btn btn-primary" onclick="loadAppointmentsByDate()" style="margin-top: 8px;">Show Appointments</button>
+                    </div>
+                    <div id="appointments-list">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Appointment ID</th>
+                                    <th>Patient ID</th>
+                                    <th>Doctor ID</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="appointments-table-body">
+                                <!-- Appointments will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- Patient History Tab -->
+            <div id="history" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Patient History</h2>
+                    </div>
+                    <div class="form-group">
+                        <label for="history-patient-id" class="form-label">Patient ID</label>
+                        <input type="text" id="history-patient-id" class="form-control" placeholder="Enter patient ID">
+                        <button class="btn btn-primary" onclick="loadPatientHistory()" style="margin-top: 10px;">
+                            Load History
+                            <span id="history-loading" class="loading hidden"></span>
+                        </button>
+                    </div>
+                    <div id="patient-history-container">
+                        <!-- History will be loaded here -->
+                    </div>
+                </div>
+            </div>
+            <!-- Doctors Tab -->
+            <div id="doctors" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Doctors</h2>
+                    </div>
+                    <div id="doctors-list">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Specialty</th>
+                                    <th>Hospital</th>
+                                </tr>
+                            </thead>
+                            <tbody id="doctors-table-body">
+                                <!-- Doctors will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+    <!-- Hospitals Tab -->
+    <div id="hospitals" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Hospitals & Doctor Specializations</h2>
+                </div>
+                <div id="hospital-list">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Hospital</th>
+                                <th>Specialization</th>
+                                <th>Doctors</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hospital-table-body">
+                            <!-- Hospitals and doctors will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    <!-- Disease Tracker Tab -->
+    <div id="disease-tracker" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Disease Tracker</h2>
+                </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start; justify-content: center;">
+                    <div style="flex: 1 1 320px; min-width: 280px; max-width: 340px;">
+                        <h3 style="font-size: 1.1rem; margin-bottom: 10px;">Disease Occurrence (Bar Chart)</h3>
+                        <canvas id="disease-bar-chart" style="width:100%;max-width:320px;height:220px;"></canvas>
+                    </div>
+                    <div style="flex: 1 1 220px; min-width: 180px; max-width: 240px;">
+                        <h3 style="font-size: 1.1rem; margin-bottom: 10px;">Disease Distribution (Pie Chart)</h3>
+                        <canvas id="disease-pie-chart" style="width:100%;max-width:220px;height:220px;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </main>
+    </div>
+    <script>
+        // Load medical facilities from backend
+        function loadMedicalFacilities() {
+            fetch('/medical_facilities')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('facilities-table-body');
+                    tbody.innerHTML = '';
+                    data.forEach(item => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${item.hospital}</td>
+                            <td>${item.facilities.join(', ')}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading facilities:', error);
+                });
+        }
+        // Global variables
+        let currentPatientId = null;
+
+        // DOM Ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load initial data
+            loadAppointments(); // Load all by default
+            loadDoctors();
+            loadHospitals();
+            loadDiseaseStats();
+            loadMedicalFacilities();
+            // Set up form submission
+            document.getElementById('symptom-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitSymptoms();
+            });
+            // Add glowing effect to active tab's card
+            function updateActiveGlow() {
+                document.querySelectorAll('.card').forEach(card => card.classList.remove('active-glow'));
+                document.querySelectorAll('.tab-content').forEach(tab => {
+                    if (tab.classList.contains('active')) {
+                        const card = tab.querySelector('.card');
+                        if (card) card.classList.add('active-glow');
+                    }
+                });
+            }
+            updateActiveGlow();
+            document.querySelectorAll('.tab').forEach(tabBtn => {
+                tabBtn.addEventListener('click', () => {
+                    setTimeout(updateActiveGlow, 300);
+                });
+            });
+                // Update active class on sidebar nav links
+                document.querySelectorAll('nav ul li a').forEach(navLink => {
+                    navLink.addEventListener('click', function() {
+                        document.querySelectorAll('nav ul li a').forEach(link => link.classList.remove('active'));
+                        this.classList.add('active');
+                        setTimeout(updateActiveGlow, 300);
+                    });
+                });
+        });
+
+        // Tab navigation
+        function showTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            // Show selected tab
+            document.getElementById(tabId).classList.add('active');
+        }
+
+            // Load hospitals and doctor specializations (real data)
+            function loadHospitals() {
+                fetch('/urban/hospitals')
+                    .then(response => response.json())
+                    .then(hospitals => {
+                        const tbody = document.getElementById('hospital-table-body');
+                        tbody.innerHTML = '';
+                        hospitals.forEach(hosp => {
+                            let status = '';
+                            if (hosp.doctors < hosp.required) {
+                                status = `<span class="badge badge-high">Shortage (${hosp.required - hosp.doctors} needed)</span>`;
+                            } else if (hosp.doctors > hosp.required) {
+                                status = `<span class="badge badge-medium">Excess (+${hosp.doctors - hosp.required})</span>`;
+                            } else {
+                                status = `<span class="badge badge-low">Adequate</span>`;
+                            }
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td>${hosp.name}</td>
+                                <td>${hosp.specialization}</td>
+                                <td>${hosp.doctors}</td>
+                                <td>${status}</td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error loading hospitals:', error);
+                    });
+            }
+
+            // Load disease statistics (real data, local chart)
+            function loadDiseaseStats() {
+                fetch('/urban/diseases')
+                    .then(response => response.json())
+                    .then(diseases => {
+                        if (window.Chart) {
+                            const barCtx = document.getElementById('disease-bar-chart').getContext('2d');
+                            new Chart(barCtx, {
+                                type: 'bar',
+                                data: {
+                                    labels: diseases.map(d => d.name),
+                                    datasets: [{
+                                        label: 'Cases',
+                                        data: diseases.map(d => d.count),
+                                        backgroundColor: [
+                                            '#0ea5e9', '#22d3ee', '#0369a1', '#ef4444', '#eab308', '#22c55e'
+                                        ],
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    plugins: {
+                                        legend: { display: false },
+                                        title: { display: true, text: 'Disease Occurrence' }
+                                    }
+                                }
+                            });
+                            // Pie chart
+                            const pieCtx = document.getElementById('disease-pie-chart').getContext('2d');
+                            new Chart(pieCtx, {
+                                type: 'pie',
+                                data: {
+                                    labels: diseases.map(d => d.name),
+                                    datasets: [{
+                                        data: diseases.map(d => d.count),
+                                        backgroundColor: [
+                                            '#0ea5e9', '#22d3ee', '#0369a1', '#ef4444', '#eab308', '#22c55e'
+                                        ],
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    plugins: {
+                                        legend: { position: 'bottom' },
+                                        title: { display: true, text: 'Disease Distribution' }
+                                    }
+                                }
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading diseases:', error);
+                    });
+            }
+
+        // Submit symptoms to backend
+        function submitSymptoms() {
+            const name = document.getElementById('patient-name').value;
+            const symptoms = document.getElementById('symptoms').value;
+            const date = document.getElementById('symptom-date').value;
+            // Show loading indicator
+            const submitBtn = document.getElementById('submit-symptoms');
+            const loading = document.getElementById('submit-loading');
+            submitBtn.disabled = true;
+            loading.classList.remove('hidden');
+
+            // Check for 'severe' keyword (case-insensitive)
+            let isSevere = /severe/i.test(symptoms);
+
+            // Make API request
+            fetch('/submit_symptoms', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: name,
+                    symptoms: symptoms,
+                    date: date
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    currentPatientId = data.appointment_details.patient_id;
+                    // Override urgency if 'severe' is present
+                    if (isSevere) {
+                        data.appointment_details.urgency_level = 'high';
+                    }
+                    displayAnalysisResults(name, data);
+                    document.getElementById('symptom-form-container').classList.add('hidden');
+                    document.getElementById('analysis-result').classList.remove('hidden');
+                    loadAppointments();
+                    // Force reload disease stats so chart updates
+                    loadDiseaseStats();
+                } else {
+                    let msg = 'Error: ' + data.message;
+                    if (typeof data.available_slots !== 'undefined') {
+                        msg += `\nAppointments available for this day: ${data.available_slots}`;
+                    }
+                    alert(msg);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while submitting symptoms.');
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                loading.classList.add('hidden');
+            });
+        }
+
+        // Display analysis results
+        function displayAnalysisResults(name, data) {
+            document.getElementById('result-name').textContent = name;
+            document.getElementById('result-patient-id').textContent = data.appointment_details.patient_id;
+            // Determine urgency level and set appropriate styling
+            const urgency = data.appointment_details.urgency_level || 'low';
+            const urgencyElement = document.getElementById('result-urgency');
+            urgencyElement.innerHTML = '';
+            const dot = document.createElement('span');
+            dot.className = 'indicator-dot ' + urgency;
+            urgencyElement.appendChild(dot);
+            const text = document.createElement('span');
+            text.textContent = urgency.charAt(0).toUpperCase() + urgency.slice(1);
+            urgencyElement.appendChild(text);
+            // Set department
+            document.getElementById('result-department').textContent = 
+                data.appointment_details.suggested_department || 'General';
+            // Set urgency alert
+            const alertElement = document.getElementById('urgency-alert');
+            alertElement.className = 'alert ' + 
+                (urgency === 'high' ? 'alert-danger' : 
+                 urgency === 'medium' ? 'alert-info' : 'alert-success');
+            alertElement.innerHTML =
+                '<i class="fas fa-' + (urgency === 'high' ? 'exclamation-triangle' : urgency === 'medium' ? 'info-circle' : 'check-circle') + '"></i>' +
+                (urgency === 'high' ? 'Urgent: Please seek immediate medical attention' : urgency === 'medium' ? 'Moderate: Schedule an appointment soon' : 'Non-urgent: Schedule at your convenience');
+            const appointmentDetails = document.getElementById('appointment-details');
+            if (data.appointment_details) {
+                appointmentDetails.innerHTML =
+                    '<div class="appointment-item">' +
+                        '<div class="appointment-detail"><span class="detail-label">Doctor ID:</span> ' + data.appointment_details.doctor_id + '</div>' +
+                        '<div class="appointment-detail"><span class="detail-label">Hospital:</span> ' + (data.appointment_details.hospital_name || 'N/A') + '</div>' +
+                        '<div class="appointment-detail"><span class="detail-label">Date:</span> ' + data.appointment_details.day + '</div>' +
+                        '<div class="appointment-detail"><span class="detail-label">Time:</span> ' + data.appointment_details.time_slot + '</div>' +
+                        '<div class="appointment-detail"><span class="detail-label">Status:</span> <span class="status-badge status-scheduled">Scheduled</span></div>' +
+                        '<div class="appointment-detail"><span class="detail-label">Appointments Available:</span> ' + data.appointment_details.available_slots + '</div>' +
+                    '</div>';
+            } else {
+                appointmentDetails.innerHTML = '<p>No appointment could be scheduled at this time.</p>';
+            }
+        }
+
+        // Reset form for new patient
+        function resetForm() {
+            document.getElementById('symptom-form').reset();
+            document.getElementById('symptom-form-container').classList.remove('hidden');
+            document.getElementById('analysis-result').classList.add('hidden');
+        }
+
+        // Load appointments from backend
+        function loadAppointments(date=null) {
+            let url = '/appointments';
+            if (date) {
+                url += `?date=${date}`;
+            }
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('appointments-table-body');
+                    tbody.innerHTML = '';
+                    if (data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#94a3b8;">No appointments found for this date.</td></tr>';
+                        return;
+                    }
+                    data.forEach(appt => {
+                        const tr = document.createElement('tr');
+                        // Determine status badge class
+                        let statusClass = 'status-scheduled';
+                        let statusText = 'Scheduled';
+                        if (appt.status && appt.status.toLowerCase() === 'completed') {
+                            statusClass = 'status-completed';
+                            statusText = 'Completed';
+                        } else if (appt.status && appt.status.toLowerCase() === 'cancelled') {
+                            statusClass = 'status-cancelled';
+                            statusText = 'Cancelled';
+                        }
+                        tr.innerHTML =
+                            '<td>' + appt.appointment_id + '</td>' +
+                            '<td>' + appt.patient_id + '</td>' +
+                            '<td>' + appt.doctor_id + '</td>' +
+                            '<td>' + appt.day + '</td>' +
+                            '<td>' + appt.time_slot + '</td>' +
+                            '<td>' + (appt.hospital_name || 'N/A') + '</td>' +
+                            '<td><span class="status-badge ' + statusClass + '">' + statusText + '</span></td>';
+                        tbody.appendChild(tr);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading appointments:', error);
+                });
+        }
+
+        // Load appointments for selected date
+        function loadAppointmentsByDate() {
+            const date = document.getElementById('appointments-date').value;
+            if (!date) {
+                alert('Please select a date');
+                return;
+            }
+            loadAppointments(date);
+        }
+
+        // Load doctors from backend
+        function loadDoctors() {
+            fetch('/doctors')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('doctors-table-body');
+                    tbody.innerHTML = '';
+                    data.forEach(doctor => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${doctor.doctor_id}</td>
+                            <td>${doctor.name}</td>
+                            <td>${doctor.specialty}</td>
+                            <td>${doctor.room_number}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading doctors:', error);
+                });
+        }
+
+        // Load patient history
+        function loadPatientHistory() {
+            const patientId = document.getElementById('history-patient-id').value;
+            if (!patientId) {
+                alert('Please enter a patient ID');
+                return;
+            }
+            const loading = document.getElementById('history-loading');
+            loading.classList.remove('hidden');
+            fetch(`/history/${patientId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('patient-history-container');
+                    if (data.status === 'success') {
+                        let html = `<h3>Patient Name: ${data.patient_name}</h3>`;
+                        if (data.history.length === 0) {
+                            html += '<div class="alert alert-info">No history found for this patient.</div>';
+                            container.innerHTML = html;
+                            return;
+                        }
+                        html += '<h3>Symptom History</h3>';
+                        data.history.forEach(historyItem => {
+                            html += '<div class="history-item">';
+                            html += '<div class="history-date">' + new Date(historyItem.report_date).toLocaleString() + '</div>';
+                            html += '<div class="history-symptoms"><strong>Symptoms:</strong> ' + historyItem.symptoms_reported + '</div>';
+                            if (historyItem.associated_appointments.length > 0) {
+                                html += '<h4 style="margin-top: 15px; margin-bottom: 10px;">Associated Appointments</h4>';
+                                historyItem.associated_appointments.forEach(appt => {
+                                    let statusClass = 'status-scheduled';
+                                    let statusText = 'Scheduled';
+                                    if (appt.status && appt.status.toLowerCase() === 'completed') {
+                                        statusClass = 'status-completed';
+                                        statusText = 'Completed';
+                                    } else if (appt.status && appt.status.toLowerCase() === 'cancelled') {
+                                        statusClass = 'status-cancelled';
+                                        statusText = 'Cancelled';
+                                    }
+                                    html += '<div class="appointment-item">' +
+                                        '<div class="appointment-detail"><span class="detail-label">Appointment ID:</span> ' + appt.appointment_id + '</div>' +
+                                        '<div class="appointment-detail"><span class="detail-label">Doctor ID:</span> ' + appt.doctor_id + '</div>' +
+                                        '<div class="appointment-detail"><span class="detail-label">Date:</span> ' + appt.day + '</div>' +
+                                        '<div class="appointment-detail"><span class="detail-label">Time:</span> ' + appt.time_slot + '</div>' +
+                                        '<div class="appointment-detail"><span class="detail-label">Status:</span> <span class="status-badge ' + statusClass + '">' + statusText + '</span></div>' +
+                                    '</div>';
+                                });
+                            } else {
+                                html += '<p>No associated appointments found.</p>';
+                            }
+                            html += '</div>'; // Close history-item
+                        });
+                        container.innerHTML = html;
+                    } else {
+                        container.innerHTML = `<div class="alert alert-danger">Error: ${data.message}</div>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading patient history:', error);
+                    document.getElementById('patient-history-container').innerHTML = 
+                        '<div class="alert alert-danger">An error occurred while loading history.</div>';
+                })
+                .finally(() => {
+                    loading.classList.add('hidden');
+                });
+        }
+
+        function autofillPatientId() {
+            if (currentPatientId) {
+                document.getElementById('history-patient-id').value = currentPatientId;
+            } else {
+                alert('No patient ID available. Please submit symptoms first.');
+            }
+        }
+    </script>
+        <!-- Chart.js for graphs (local, no API) -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html>

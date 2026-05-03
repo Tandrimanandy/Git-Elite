@@ -1,0 +1,7 @@
+flask
+sqlalchemy
+flask_sqlalchemy
+scikit-learn
+numpy
+pillow
+werkzeug
