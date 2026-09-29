@@ -1,0 +1,14 @@
+{
+  "nandytandrima@gmail.com": {
+    "name": "Tandrima Nandy",
+    "first_name": "Tandrima",
+    "last_name": "Nandy",
+    "password_hash": "scrypt:32768:8:1$P3yOxXFSqVzxNIGx$ae3a984fabb91c9f176ba7cf24426e7f3fd964e298ac110352f9dfe0bc4c1afef006034be1c9ed9418823292d99d5c1084c705d37ad9360bdea0c4d09acf0175"
+  },
+  "abcd@gmail.com": {
+    "name": "ABCD Nandy",
+    "first_name": "ABCD",
+    "last_name": "Nandy",
+    "password_hash": "scrypt:32768:8:1$FAnwsqzSkdQeBeqq$49119ea00e8b1abff7ac6ea5f29990db1bde836444f77ead46d9a686c950bfb94ba10961f353b93475b4b3e12eb7e071b988f334d158595129d897073a8f562b"
+  }
+}
